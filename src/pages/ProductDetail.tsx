@@ -295,7 +295,7 @@ export default function ProductDetail() {
                 onClick={handleExploreMore}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 h-12 text-lg"
               >
-                Explore More
+                Get in touch
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button variant="outline" size="icon" className="h-12 w-12">
