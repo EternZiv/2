@@ -83,7 +83,9 @@ export default function AdminLayout() {
 
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navLinks.map(({ to, label, icon: Icon }) => {
-            const isActive = location.pathname === to;
+            const isActive =
+              location.pathname === to ||
+              (to === '/admin/dashboard' && (location.pathname === '/admin' || location.pathname === '/admin/'));
             return (
               <Link
                 key={to}

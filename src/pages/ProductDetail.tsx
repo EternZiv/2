@@ -464,23 +464,23 @@ export default function ProductDetail() {
                     </h4>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>{product.name} Unit</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Installation Manual</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Warranty Certificate</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Mounting Hardware</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Connection Cables</span>
                       </li>
                     </ul>
@@ -493,23 +493,23 @@ export default function ProductDetail() {
                     </h4>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>{product.warranty} Manufacturer Warranty</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>24/7 Technical Support</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Free Installation Guidance</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Online Monitoring System</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-600 mt-1">â€¢</span>
+                        <span className="text-blue-600 font-bold text-lg leading-none w-4">•</span>
                         <span>Remote Firmware Updates</span>
                       </li>
                     </ul>
@@ -652,7 +652,7 @@ export default function ProductDetail() {
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>PDF, 3.8 MB</span>
-                          <span>â€¢</span>
+                          <span>•</span>
                           <span>Updated March 2026</span>
                         </div>
                       </div>
@@ -688,7 +688,7 @@ export default function ProductDetail() {
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>PDF, 1.2 MB</span>
-                          <span>â€¢</span>
+                          <span>•</span>
                           <span>Updated March 2026</span>
                         </div>
                       </div>
@@ -718,7 +718,7 @@ export default function ProductDetail() {
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>PDF, 2.5 MB</span>
-                          <span>â€¢</span>
+                          <span>•</span>
                           <span>Updated March 2026</span>
                         </div>
                       </div>
@@ -871,7 +871,7 @@ export default function ProductDetail() {
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>PDF, 4.8 MB</span>
-                          <span>â€¢</span>
+                          <span>•</span>
                           <span>Updated March 2026</span>
                         </div>
                       </div>
@@ -902,7 +902,7 @@ export default function ProductDetail() {
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>PDF, 6.1 MB</span>
-                          <span>â€¢</span>
+                          <span>•</span>
                           <span>Updated March 2026</span>
                         </div>
                       </div>

@@ -38,7 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.badge}
             </Badge>
           )}
-          
+
           <div className="absolute top-3 right-3 sm:top-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button size="icon" variant="secondary" className="h-8 w-8 sm:h-9 sm:w-9 bg-white/90 hover:bg-white">
               <Eye className="h-4 w-4" />
@@ -102,8 +102,8 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-center justify-end gap-3">
           <Link to="/contact" className="w-full">
             <Button className="bg-blue-600 hover:bg-blue-700 text-sm w-full">
-              <span className="hidden sm:inline">Explore More</span>
-              <span className="sm:hidden">Explore</span>
+              <span className="hidden sm:inline">Get in touch</span>
+              <span className="sm:hidden">Get in touch</span>
               <ArrowRight className="h-4 w-4 ml-1 sm:ml-2" />
             </Button>
           </Link>
