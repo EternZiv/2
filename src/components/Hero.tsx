@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import heroImage from "figma:asset/b513ab30d1b02dbe05d9d52d7e3e8a9aae208341.png";
+import heroImage from "figma:asset/27fbf51dd3bdeacfac524e1f7ee0368fab893f48.png";
 
 export function Hero() {
   return (
