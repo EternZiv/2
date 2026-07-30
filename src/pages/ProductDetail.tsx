@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import {
-  Heart,
   Share2,
   Zap,
   Shield,
@@ -379,9 +378,7 @@ export default function ProductDetail() {
                 Get in touch
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" size="icon" className="h-12 w-12">
-                <Heart className="h-5 w-5" />
-              </Button>
+
               <Button
                 variant="outline"
                 size="icon"
