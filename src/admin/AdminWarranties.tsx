@@ -21,6 +21,7 @@ import {
   Eye,
   ChevronDown,
   FileText,
+  Mail,
 } from "lucide-react";
 
 const regStatusCycle: Record<string, string> = {
@@ -225,6 +226,19 @@ export default function AdminWarranties() {
     }
 
     setDeleteClaimConfirm(null);
+  }
+
+  function handleReplyClaimViaEmail(claim: WarrantyClaim) {
+    const subject = `Re: Warranty Claim - Serial ${claim.serial_number}`;
+    const dateStr = new Date(claim.created_at).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const body = `\n\n--- Original Claim ---\nFrom: ${claim.full_name} (${claim.email})\nPhone: ${claim.phone || 'N/A'}\nSerial Number: ${claim.serial_number}\nProduct Model: ${claim.product_model || 'N/A'}\nPurchase Date: ${claim.purchase_date || 'N/A'}\nClaim Type: ${claim.claim_type || 'N/A'}\nReceived: ${dateStr}\n\nIssue Description:\n${claim.issue_description}`;
+    
+    window.location.href = `mailto:${encodeURIComponent(claim.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   function getRegStatusBadge(status: string) {
@@ -613,6 +627,13 @@ export default function AdminWarranties() {
                                   <Eye className="h-4 w-4" />
                                 </button>
                                 <button
+                                  onClick={() => handleReplyClaimViaEmail(c)}
+                                  className="rounded-md p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                  title="Reply via Email"
+                                >
+                                  <Mail className="h-4 w-4" />
+                                </button>
+                                <button
                                   onClick={() => setDeleteClaimConfirm(c.id)}
                                   className="rounded-md p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                                   title="Delete"
@@ -697,13 +718,20 @@ export default function AdminWarranties() {
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-gray-200 px-6 py-4 flex justify-end">
+                <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+                  <button
+                    onClick={() => handleReplyClaimViaEmail(selectedClaim)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Reply via Email
+                  </button>
                   <button
                     onClick={() => {
                       setShowClaimDetail(false);
                       setSelectedClaim(null);
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Close
                   </button>

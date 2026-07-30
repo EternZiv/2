@@ -1,5 +1,6 @@
 import { Wrench, AlertTriangle, CheckCircle, Settings, Shield, FileText, PlayCircle, Users } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { Link } from "react-router";
 
 export default function InstallationGuidance() {
   const installationSteps = [
@@ -227,10 +228,12 @@ export default function InstallationGuidance() {
               <p className="text-gray-300 text-lg mb-6">
                 Access our comprehensive video library with step-by-step installation tutorials for all Power2Go systems.
               </p>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
-                <PlayCircle className="w-5 h-5 mr-2" />
-                View Video Tutorials
-              </Button>
+              <Link to="/support">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
+                  <PlayCircle className="w-5 h-5 mr-2" />
+                  View Video Tutorials
+                </Button>
+              </Link>
             </div>
             <div className="w-full md:w-auto">
               <div className="bg-gray-800 rounded-lg p-8 border border-gray-700">

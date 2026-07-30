@@ -322,9 +322,11 @@ export default function Warranty() {
                 Warranty Registration
               </Button>
             </Link>
-            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-6 text-lg">
-              Download Warranty Terms
-            </Button>
+            <Link to="/contact">
+              <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-6 text-lg">
+                Download Warranty Terms
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

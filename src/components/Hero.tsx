@@ -7,17 +7,15 @@ import heroImage from "figma:asset/27fbf51dd3bdeacfac524e1f7ee0368fab893f48.png"
 export function Hero() {
   return (
     <section className="relative h-[600px] md:h-[700px] bg-gradient-to-br from-blue-50 to-cyan-50">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-transparent" />
+      <div className="absolute inset-0 overflow-hidden" role="img" aria-label="Power2Go energy storage solutions hero image">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 to-transparent" />
       </div>
 
       <div 
         className="relative w-full px-4 sm:px-6 lg:px-8 h-full flex items-center bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})`, backgroundPosition: 'center 40%' }}
       >
-        {/* Semi-transparent overlay to ensure text readability */}
-        
-        
+        <div className="absolute inset-0 bg-black/30" />
         <div className="max-w-2xl relative z-10 mx-auto lg:mx-0 lg:ml-[calc((100vw-1280px)/2)]">
           <motion.div
             className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full mb-6"
@@ -28,7 +26,7 @@ export function Hero() {
             Advanced Energy Storage Solutions
           </motion.div>
           <motion.h1
-            className="font-bold mb-3 text-[#ffffff] text-[36px] md:text-[64px]"
+            className="font-bold mb-3 text-white text-[36px] md:text-[64px]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -36,7 +34,7 @@ export function Hero() {
             Power Your Future with Clean Energy
           </motion.h1>
           <motion.p
-            className="text-xl mb-8 leading-relaxed text-[#ffffff]"
+            className="text-xl mb-8 leading-relaxed text-white"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}

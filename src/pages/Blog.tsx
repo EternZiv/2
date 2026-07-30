@@ -3,6 +3,7 @@ import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import { Link } from "react-router";
 import { useState } from "react";
 
 export default function Blog() {
@@ -161,10 +162,12 @@ export default function Blog() {
                         <span>{featuredPost.readTime}</span>
                       </div>
                     </div>
-                    <Button className="w-fit bg-blue-600 hover:bg-blue-700">
-                      Read Article
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link to={`/blog`} className="w-fit">
+                      <Button className="w-fit bg-blue-600 hover:bg-blue-700">
+                        Read Article
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </Card>
@@ -243,16 +246,17 @@ export default function Blog() {
             <p className="text-xl text-blue-50 mb-8 max-w-2xl mx-auto">
               Get the latest articles and energy storage insights delivered to your inbox
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Enter your email"
+                aria-label="Email for newsletter"
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
               />
-              <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
+              <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100" type="submit">
                 Subscribe
               </Button>
-            </div>
+            </form>
           </motion.div>
         </div>
       </section>

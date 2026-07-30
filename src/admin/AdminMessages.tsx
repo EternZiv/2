@@ -79,6 +79,19 @@ export default function AdminMessages() {
     toast.success("Email copied to clipboard");
   }
 
+  function handleReplyViaEmail(msg: ContactMessage) {
+    const subject = `Re: ${msg.subject || 'Power2Go Contact Inquiry'}`;
+    const dateStr = new Date(msg.created_at).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const body = `\n\n--- Original Message ---\nFrom: ${msg.name} (${msg.email})\nReceived: ${dateStr}\nSubject: ${msg.subject || 'Power2Go Inquiry'}\n\n${msg.message}`;
+    
+    window.location.href = `mailto:${encodeURIComponent(msg.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
   const unreadCount = messages.filter((m) => !m.is_read).length;
 
   const filtered = messages.filter((m) => {
@@ -311,7 +324,7 @@ export default function AdminMessages() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => copyEmail(selectedMessage.email)}
+                    onClick={() => handleReplyViaEmail(selectedMessage)}
                   >
                     <Mail className="h-4 w-4" />
                     Reply via Email
