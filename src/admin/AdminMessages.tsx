@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { fetchContactMessages, markMessageRead, deleteContactMessage } from "./adminApi";
 import type { ContactMessage } from "../lib/types";
 import { toast } from "sonner";
 import {
@@ -27,52 +27,43 @@ export default function AdminMessages() {
 
   async function fetchMessages() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("contact_messages")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
+    try {
+      const data = await fetchContactMessages();
+      setMessages(data);
+    } catch {
       toast.error("Failed to load messages");
-    } else {
-      setMessages(data as ContactMessage[]);
     }
     setLoading(false);
   }
 
   async function markAsRead(id: string) {
-    const { error } = await supabase
-      .from("contact_messages")
-      .update({ is_read: true })
-      .eq("id", id);
-    if (error) {
+    try {
+      await markMessageRead(id);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, is_read: true } : m))
+      );
+      if (selectedMessage?.id === id) {
+        setSelectedMessage((prev) => (prev ? { ...prev, is_read: true } : null));
+      }
+      toast.success("Marked as read");
+    } catch {
       toast.error("Failed to mark as read");
-      return;
     }
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, is_read: true } : m))
-    );
-    if (selectedMessage?.id === id) {
-      setSelectedMessage((prev) => (prev ? { ...prev, is_read: true } : null));
-    }
-    toast.success("Marked as read");
   }
 
   async function deleteMessage(id: string) {
     if (!window.confirm("Are you sure you want to delete this message?")) return;
-    const { error } = await supabase
-      .from("contact_messages")
-      .delete()
-      .eq("id", id);
-    if (error) {
+    try {
+      await deleteContactMessage(id);
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+      if (selectedMessage?.id === id) {
+        setSelectedMessage(null);
+        setShowDetail(false);
+      }
+      toast.success("Message deleted");
+    } catch {
       toast.error("Failed to delete message");
-      return;
     }
-    setMessages((prev) => prev.filter((m) => m.id !== id));
-    if (selectedMessage?.id === id) {
-      setSelectedMessage(null);
-      setShowDetail(false);
-    }
-    toast.success("Message deleted");
   }
 
   function openDetail(msg: ContactMessage) {

@@ -4,6 +4,9 @@ import {
   fetchWarrantyClaims,
   updateWarrantyClaimStatus,
   deleteWarrantyClaim,
+  fetchWarrantyRegistrations,
+  updateWarrantyStatus,
+  deleteWarrantyRegistration,
 } from "./adminApi";
 import type { WarrantyRegistration, WarrantyClaim } from "../lib/types";
 import { toast } from "sonner";
@@ -114,15 +117,11 @@ export default function AdminWarranties() {
   useEffect(() => {
     async function fetchRegistrations() {
       setRegLoading(true);
-      const { data, error } = await supabase
-        .from("warranty_registrations")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
+      try {
+        const data = await fetchWarrantyRegistrations();
+        setRegistrations(data);
+      } catch (err) {
         toast.error("Failed to load warranty registrations");
-      } else {
-        setRegistrations((data as WarrantyRegistration[]) ?? []);
       }
       setRegLoading(false);
     }
@@ -170,20 +169,16 @@ export default function AdminWarranties() {
     const newStatus = regStatusCycle[currentStatus] || "pending";
     setUpdatingRegId(id);
 
-    const { error } = await supabase
-      .from("warranty_registrations")
-      .update({ warranty_status: newStatus })
-      .eq("id", id);
-
-    if (error) {
-      toast.error("Failed to update status");
-    } else {
+    try {
+      await updateWarrantyStatus(id, newStatus);
       setRegistrations((prev) =>
         prev.map((r) =>
           r.id === id ? { ...r, warranty_status: newStatus } : r
         )
       );
       toast.success(`Status changed to ${newStatus}`);
+    } catch {
+      toast.error("Failed to update status");
     }
 
     setUpdatingRegId(null);
@@ -209,16 +204,12 @@ export default function AdminWarranties() {
   }
 
   async function handleDeleteRegistration(id: string) {
-    const { error } = await supabase
-      .from("warranty_registrations")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      toast.error("Failed to delete registration");
-    } else {
+    try {
+      await deleteWarrantyRegistration(id);
       setRegistrations((prev) => prev.filter((r) => r.id !== id));
       toast.success("Registration deleted");
+    } catch {
+      toast.error("Failed to delete registration");
     }
 
     setDeleteRegConfirm(null);

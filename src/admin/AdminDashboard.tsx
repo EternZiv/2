@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { WarrantyRegistration, ContactMessage } from "../lib/types";
+import { getAdminSession } from "./adminAuth";
 import {
   Package,
   Shield,
@@ -22,40 +23,31 @@ export default function AdminDashboard() {
     async function fetchDashboard() {
       setLoading(true);
 
-      const [
-        productsRes,
-        warrantiesRes,
-        messagesRes,
-        unreadRes,
-        recentWarrantiesRes,
-        recentMessagesRes,
-      ] = await Promise.all([
-        supabase.from("products").select("*", { count: "exact", head: true }),
-        supabase.from("warranty_registrations").select("*", { count: "exact", head: true }),
-        supabase.from("contact_messages").select("*", { count: "exact", head: true }),
-        supabase
-          .from("contact_messages")
-          .select("*", { count: "exact", head: true })
-          .eq("is_read", false),
-        supabase
-          .from("warranty_registrations")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase
-          .from("contact_messages")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(5),
-      ]);
+      const session = getAdminSession();
+      const username = session?.username || "";
+      const hash = localStorage.getItem("p2g_admin_hash") || "";
 
-      setTotalProducts(productsRes.count ?? 0);
-      setTotalWarranties(warrantiesRes.count ?? 0);
-      setTotalMessages(messagesRes.count ?? 0);
-      setUnreadMessages(unreadRes.count ?? 0);
-      setRecentWarranties((recentWarrantiesRes.data as WarrantyRegistration[]) ?? []);
-      setRecentMessages((recentMessagesRes.data as ContactMessage[]) ?? []);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase.rpc("admin_dashboard_stats", {
+          p_username: username,
+          p_password_hash: hash,
+        });
+
+        if (error) throw error;
+
+        if (data) {
+          setTotalProducts(data.total_products ?? 0);
+          setTotalWarranties(data.total_warranties ?? 0);
+          setTotalMessages(data.total_messages ?? 0);
+          setUnreadMessages(data.unread_messages ?? 0);
+          setRecentWarranties((data.recent_warranties as WarrantyRegistration[]) ?? []);
+          setRecentMessages((data.recent_messages as ContactMessage[]) ?? []);
+        }
+      } catch (err) {
+        console.error("Failed to load dashboard statistics:", err);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchDashboard();

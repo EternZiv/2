@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { useState } from "react";
 import type { WarrantyRegistration as WarrantyData } from "../../lib/types";
 import { toast } from "sonner";
+import { createWarrantyRegistration, lookupWarrantyBySerial } from "../../admin/adminApi";
 
 export default function WarrantyRegistration() {
   const [formData, setFormData] = useState({
@@ -22,17 +23,37 @@ export default function WarrantyRegistration() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkSerialNumber, setCheckSerialNumber] = useState("");
   const [isChecking, setIsChecking] = useState(false);
-  const [warrantyData, setWarrantyData] = useState<WarrantyData | null>(null);
+  const [warrantyData, setWarrantyData] = useState<any | null>(null);
 
   const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL || "";
 
   const handleCheckWarranty = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkSerialNumber.trim()) return;
     setIsChecking(true);
     setWarrantyData(null);
 
     try {
-      const url = `${GOOGLE_SCRIPT_URL}?action=check&serialNumber=${encodeURIComponent(checkSerialNumber)}`;
+      // Step 1: Check Supabase database first (fast local query)
+      const dbResult = await lookupWarrantyBySerial(checkSerialNumber.trim());
+      if (dbResult) {
+        setWarrantyData({
+          ...dbResult,
+          fullName: dbResult.full_name,
+          productModel: dbResult.product_model,
+          serialNumber: dbResult.serial_number,
+          purchaseDate: dbResult.purchase_date,
+          dealerName: dbResult.dealer_name,
+          dealerLocation: dbResult.dealer_location,
+          timestamp: dbResult.created_at,
+        } as any);
+        toast.success("Warranty found!");
+        setIsChecking(false);
+        return;
+      }
+
+      // Step 2: Fallback to legacy Google Script query if not found in database
+      const url = `${GOOGLE_SCRIPT_URL}?action=check&serialNumber=${encodeURIComponent(checkSerialNumber.trim())}`;
 
       const response = await fetch(url);
       const responseText = await response.text();
@@ -47,12 +68,15 @@ export default function WarrantyRegistration() {
 
       if (data.found) {
         setWarrantyData(data.warranty);
-        toast.success("Warranty found!");
+        toast.success("Warranty found in sheet registry!");
       } else {
         toast.error("No warranty found for this serial number.");
       }
-    } catch (error) {
-      toast.error("Failed to check warranty. Please try again.");
+    } catch (error: any) {
+      console.error("Warranty check error:", error);
+      toast.error("Failed to check warranty.", {
+        description: error?.message || "Please try again.",
+      });
     } finally {
       setIsChecking(false);
     }
@@ -63,7 +87,6 @@ export default function WarrantyRegistration() {
     setIsSubmitting(true);
 
     try {
-
       const timestamp = new Date().toISOString();
 
       // Build URL with query parameters
@@ -83,24 +106,48 @@ export default function WarrantyRegistration() {
       });
 
       const url = `${GOOGLE_SCRIPT_URL}?${params.toString()}`;
+      let googleSheetsSynced = false;
 
-      // Check for duplicate by making a fetch request
-      const response = await fetch(url);
-      const result = await response.text();
+      try {
+        // Check for duplicate by making a fetch request
+        const response = await fetch(url);
+        const result = await response.text();
 
-      if (result === "DUPLICATE_SERIAL") {
-        toast.error("This serial number is already registered! Each serial number can only be registered once.");
-        setIsSubmitting(false);
-        return;
+        if (result === "DUPLICATE_SERIAL") {
+          toast.error("This serial number is already registered! Each serial number can only be registered once.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (result.startsWith("Error:")) {
+          console.warn("Google Sheets registry script returned an error:", result);
+        } else {
+          googleSheetsSynced = true;
+        }
+      } catch (scriptErr) {
+        console.warn("Google Sheets registry sync failed (likely CORS or ad-blocker blocking Google Apps Script):", scriptErr);
       }
 
-      if (result.startsWith("Error:")) {
-        toast.error("Registration failed: " + result);
-        setIsSubmitting(false);
-        return;
-      }
+      // Sync submission to Supabase warranty_registrations table for admin visibility
+      await createWarrantyRegistration({
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        postal_code: formData.postalCode,
+        product_model: formData.productModel,
+        serial_number: formData.serialNumber,
+        purchase_date: formData.purchaseDate,
+        dealer_name: formData.dealerName,
+        dealer_location: formData.dealerLocation,
+      });
 
-      toast.success("Warranty registered successfully! Your data has been submitted to our system.");
+      if (googleSheetsSynced) {
+        toast.success("Warranty registered successfully! Coverage is now active.");
+      } else {
+        toast.success("Warranty registered in database! (Sheet sync pending)");
+      }
 
       // Reset form
       setFormData({
@@ -116,8 +163,11 @@ export default function WarrantyRegistration() {
         dealerName: "Orient Power Pvt Ltd",
         dealerLocation: "10 Ali Block Garden Town Lahore"
       });
-    } catch (error) {
-      toast.error("Failed to submit warranty registration. Please try again.");
+    } catch (error: any) {
+      console.error("Warranty registration error:", error);
+      toast.error("Failed to submit warranty registration.", {
+        description: error?.message || "Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }

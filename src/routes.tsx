@@ -29,6 +29,8 @@ import CommercialSolutions from "./pages/CommercialSolutions";
 import PortableSolutions from "./pages/PortableSolutions";
 import IndustrialSolutions from "./pages/IndustrialSolutions";
 import NotFound from "./pages/NotFound";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import AdminLogin from "./admin/AdminLogin";
 import AdminDashboard from "./admin/AdminDashboard";
 import AdminProducts from "./admin/AdminProducts";
@@ -81,8 +83,8 @@ export const router = createBrowserRouter([
       { path: "commercial-solutions", Component: CommercialSolutions },
       { path: "portable-solutions", Component: PortableSolutions },
       { path: "industrial-solutions", Component: IndustrialSolutions },
-      { path: "privacy", Component: Documentation },
-      { path: "terms", Component: Documentation },
+      { path: "privacy", Component: Privacy },
+      { path: "terms", Component: Terms },
       {
         element: <ProtectedRoute />,
         children: [

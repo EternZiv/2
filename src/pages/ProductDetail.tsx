@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import {
@@ -24,6 +24,8 @@ import { Card } from "../components/ui/card";
 import { AnimatedProductImage } from "../components/AnimatedProductImage";
 import { toast } from "sonner";
 import { getProductById } from "../data/products";
+import { supabase } from "../lib/supabase";
+import type { Product } from "../lib/types";
 import manualPage1 from "figma:asset/c236a88db86fd0962e803b04e6bfbb32b1942d77.png";
 import manualPage2 from "figma:asset/1e3e48d65069b1ad89eb79f99ce2d82cc03c9d4a.png";
 import lvManualPage1 from "figma:asset/ef9a37ce4a2ab71fa5910022f1461f9320b35170.png";
@@ -41,17 +43,96 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [selectedCapacity, setSelectedCapacity] = useState<string>("1-unit");
-  const [activeTab, setActiveTab] = useState<"overview" | "specifications" | "features">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "specifications" | "features" >("overview");
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showManualViewer, setShowManualViewer] = useState(false);
   const [currentManualPage, setCurrentManualPage] = useState(0);
   const [showCapacitySelection, setShowCapacitySelection] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<Product | null>(() => getProductById(Number(id)) || null);
+  const [loading, setLoading] = useState(false);
 
-  const product = getProductById(Number(id));
+  useEffect(() => {
+    async function loadProductDetails() {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const { data: dbProduct, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("product_id", Number(id))
+          .single();
+
+        if (!error && dbProduct) {
+          const { data: dbVariants } = await supabase
+            .from("product_variants")
+            .select("*")
+            .eq("product_id", dbProduct.id)
+            .order("sort_order", { ascending: true });
+
+          const mappedVariants = dbVariants ? dbVariants.map((v: any) => ({
+            capacity: v.capacity,
+            capacityLabel: v.capacity_label,
+            model: v.model,
+            power: v.power,
+            voltage: v.voltage,
+            features: v.features || [],
+            description: v.description,
+            specifications: v.specifications || {},
+            keyFeatures: v.key_features || [],
+            applications: v.applications || [],
+          })) : [];
+
+          const mappedProduct: Product = {
+            id: dbProduct.product_id,
+            name: dbProduct.name,
+            model: dbProduct.model,
+            category: dbProduct.category,
+            image: dbProduct.image_data ? [dbProduct.image_data] : (dbProduct.image_url ? [dbProduct.image_url] : []),
+            capacity: Number(dbProduct.capacity),
+            capacityLabel: dbProduct.capacity_label,
+            power: dbProduct.power,
+            voltage: dbProduct.voltage,
+            warranty: dbProduct.warranty,
+            badge: dbProduct.badge,
+            features: dbProduct.features || [],
+            animationInterval: 5000,
+            description: dbProduct.description,
+            specifications: dbProduct.specifications,
+            keyFeatures: dbProduct.detailed_key_features,
+            applications: dbProduct.applications,
+            what_included: dbProduct.what_included,
+            warranty_support: dbProduct.warranty_support,
+            hasVariants: dbProduct.has_variants,
+            variants: mappedVariants,
+          };
+
+          setActiveProduct(mappedProduct);
+        }
+      } catch (err) {
+        console.error("Failed to load product details from database:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProductDetails();
+  }, [id]);
+
+  const product = activeProduct;
 
   const manualPages = product?.id === 3
     ? [lvManualPage1, lvManualPage2, lvManualPage3, lvManualPage4, lvManualPage5, lvManualPage6, lvManualPage7, lvManualPage8, lvManualPage9, lvManualPage10]
     : [manualPage1, manualPage2];
+
+  if (loading && !product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center flex flex-col items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4" />
+          <p className="text-gray-500 font-medium">Loading product details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

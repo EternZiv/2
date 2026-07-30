@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { User, MapPin, Settings, Lock, Mail, Phone, Edit2, Save, X, LogOut } from "lucide-react";
+import { User, MapPin, Settings, Lock, Mail, Phone, Edit2, Save, X, LogOut, Plus } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../components/ui/dialog";
 
 interface Address {
   id: string;
@@ -40,6 +41,45 @@ export default function Profile() {
     newPassword: "",
     confirmPassword: "",
   });
+
+  // New Address state
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    label: "",
+    street: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    country: "Pakistan",
+    is_default: false,
+  });
+
+  // Settings State mapped from local storage
+  const [settings, setSettings] = useState(() => {
+    const raw = localStorage.getItem("p2g_user_settings");
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // Fallback
+      }
+    }
+    return {
+      orderUpdates: true,
+      promos: true,
+      recommendations: false,
+      newsletter: true,
+      showHistory: true,
+      personalized: false,
+    };
+  });
+
+  const handleSettingChange = (key: string, val: boolean) => {
+    const updated = { ...settings, [key]: val };
+    setSettings(updated);
+    localStorage.setItem("p2g_user_settings", JSON.stringify(updated));
+    toast.success("Preference updated successfully!");
+  };
 
   // Load profile data into form
   useEffect(() => {
@@ -107,6 +147,62 @@ export default function Profile() {
       });
     }
     setIsEditing(false);
+  };
+
+  const handleAddAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    if (!newAddress.label || !newAddress.street || !newAddress.city) {
+      toast.error("Please fill in all required fields (Label, Street, City).");
+      return;
+    }
+
+    try {
+      if (newAddress.is_default) {
+        // Unset any existing defaults
+        await supabase
+          .from("addresses")
+          .update({ is_default: false })
+          .eq("user_id", user.id);
+      }
+
+      const { data, error } = await supabase
+        .from("addresses")
+        .insert({
+          user_id: user.id,
+          label: newAddress.label,
+          street: newAddress.street,
+          city: newAddress.city,
+          state: newAddress.state,
+          postal_code: newAddress.postal_code,
+          country: newAddress.country,
+          is_default: newAddress.is_default,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setAddresses((prev) => {
+          const updated = [...prev, data as Address];
+          return updated.sort((a, b) => (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0));
+        });
+        toast.success("Address added successfully!");
+        setShowAddAddressModal(false);
+        setNewAddress({
+          label: "",
+          street: "",
+          city: "",
+          state: "",
+          postal_code: "",
+          country: "Pakistan",
+          is_default: false,
+        });
+      }
+    } catch (err: any) {
+      toast.error("Failed to add address", { description: err.message });
+    }
   };
 
   const handleDeleteAddress = async (addressId: string) => {
@@ -391,7 +487,9 @@ export default function Profile() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">Saved Addresses</h2>
-                  <Button className="bg-blue-600 hover:bg-blue-700">Add New Address</Button>
+                  <Button onClick={() => setShowAddAddressModal(true)} className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="w-4 h-4 mr-2" /> Add New Address
+                  </Button>
                 </div>
 
                 {loadingAddresses ? (
@@ -402,7 +500,7 @@ export default function Profile() {
                   <div className="text-center py-8">
                     <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500">No addresses saved yet.</p>
-                    <span className="text-blue-600 text-sm font-medium">
+                    <span onClick={() => setShowAddAddressModal(true)} className="text-blue-600 text-sm font-medium cursor-pointer hover:underline">
                       Add your first address
                     </span>
                   </div>
@@ -452,6 +550,113 @@ export default function Profile() {
                 )}
               </div>
             )}
+
+            {/* Add Address Modal */}
+            <Dialog open={showAddAddressModal} onOpenChange={setShowAddAddressModal}>
+              <DialogContent className="sm:max-w-md bg-white">
+                <DialogHeader>
+                  <DialogTitle>Add New Address</DialogTitle>
+                  <DialogDescription>
+                    Provide the address details below to save it to your profile.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleAddAddress} className="space-y-4 py-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Label (e.g. Home, Office) *
+                    </label>
+                    <Input
+                      type="text"
+                      required
+                      value={newAddress.label}
+                      onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
+                      placeholder="Home"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Street Address *
+                    </label>
+                    <Input
+                      type="text"
+                      required
+                      value={newAddress.street}
+                      onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                      placeholder="123 Main St"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        City *
+                      </label>
+                      <Input
+                        type="text"
+                        required
+                        value={newAddress.city}
+                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                        placeholder="Karachi"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        State / Province
+                      </label>
+                      <Input
+                        type="text"
+                        value={newAddress.state}
+                        onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                        placeholder="Sindh"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Postal Code
+                      </label>
+                      <Input
+                        type="text"
+                        value={newAddress.postal_code}
+                        onChange={(e) => setNewAddress({ ...newAddress, postal_code: e.target.value })}
+                        placeholder="75500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Country
+                      </label>
+                      <Input
+                        type="text"
+                        value={newAddress.country}
+                        onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+                        placeholder="Pakistan"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 pt-2">
+                    <input
+                      id="default-address"
+                      type="checkbox"
+                      checked={newAddress.is_default}
+                      onChange={(e) => setNewAddress({ ...newAddress, is_default: e.target.checked })}
+                      className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="default-address" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Set as default address
+                    </label>
+                  </div>
+                  <div className="flex space-x-3 justify-end pt-4">
+                    <Button type="button" variant="outline" onClick={() => setShowAddAddressModal(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Save Address
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
 
             {/* Security Tab */}
             {activeTab === "security" && (
@@ -509,20 +714,40 @@ export default function Profile() {
                   <div className="border-b border-gray-200 pb-6">
                     <h3 className="font-bold text-gray-900 mb-4">Email Notifications</h3>
                     <div className="space-y-3">
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" defaultChecked className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.orderUpdates}
+                          onChange={(e) => handleSettingChange("orderUpdates", e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
                         <span className="text-sm text-gray-700">Order updates and confirmations</span>
                       </label>
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" defaultChecked className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.promos}
+                          onChange={(e) => handleSettingChange("promos", e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
                         <span className="text-sm text-gray-700">Promotional offers and discounts</span>
                       </label>
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.recommendations}
+                          onChange={(e) => handleSettingChange("recommendations", e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
                         <span className="text-sm text-gray-700">Product recommendations</span>
                       </label>
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" defaultChecked className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.newsletter}
+                          onChange={(e) => handleSettingChange("newsletter", e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
                         <span className="text-sm text-gray-700">Newsletter and updates</span>
                       </label>
                     </div>
@@ -531,12 +756,22 @@ export default function Profile() {
                   <div className="border-b border-gray-200 pb-6">
                     <h3 className="font-bold text-gray-900 mb-4">Privacy Settings</h3>
                     <div className="space-y-3">
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" defaultChecked className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.showHistory}
+                          onChange={(e) => handleSettingChange("showHistory", e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
                         <span className="text-sm text-gray-700">Show my purchase history</span>
                       </label>
-                      <label className="flex items-center space-x-3">
-                        <input type="checkbox" className="w-4 h-4 text-blue-600" />
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.personalized}
+                          onChange={(e) => handleSettingChange("personalized", e.target.checked)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
                         <span className="text-sm text-gray-700">Allow personalized recommendations</span>
                       </label>
                     </div>

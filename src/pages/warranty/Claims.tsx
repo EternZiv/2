@@ -1,6 +1,8 @@
-import { FileText, Upload, User, Mail, Phone, Hash, Calendar, MessageSquare } from "lucide-react";
+import { FileText, Upload, User, Mail, Phone, Hash, Calendar, MessageSquare, ShieldCheck } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { useState } from "react";
+import { createWarrantyClaim, lookupWarrantyBySerial } from "../../admin/adminApi";
+import { toast } from "sonner";
 
 export default function Claims() {
   const [formData, setFormData] = useState({
@@ -14,11 +16,135 @@ export default function Claims() {
     issueDescription: "",
     attachments: [] as File[]
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isWarrantyVerified, setIsWarrantyVerified] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleVerifyWarranty = async () => {
+    const serial = formData.warrantyNumber.trim();
+    if (!serial) {
+      toast.error("Please enter your product serial number first.");
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const warranty = await lookupWarrantyBySerial(serial);
+      if (!warranty) {
+        toast.error("Invalid Serial / Warranty Number", {
+          description: "No registered warranty was found for this number. Please check the serial number on your product.",
+        });
+        setIsWarrantyVerified(false);
+        return;
+      }
+
+      if (warranty.warranty_status !== "approved") {
+        toast.error(`Warranty status is '${warranty.warranty_status}'`, {
+          description: "Warranty claims can only be filed for registrations that have been approved by the admin.",
+        });
+        setIsWarrantyVerified(false);
+        return;
+      }
+
+      // Pre-fill form fields with verified registry details
+      setFormData((prev) => ({
+        ...prev,
+        fullName: warranty.full_name,
+        email: warranty.email,
+        phone: warranty.phone,
+        productCode: warranty.product_model,
+        purchaseDate: warranty.purchase_date || "",
+      }));
+
+      setIsWarrantyVerified(true);
+      toast.success("Warranty verified successfully!", {
+        description: "Registered details have been auto-filled into the form.",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to verify warranty. Please try again later.");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, this would submit to a backend API
-    alert(`Claim submitted successfully!\n\nWarranty Number: ${formData.warrantyNumber}\n\nOur support team will contact you within 24-48 hours.`);
+
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.warrantyNumber || !formData.productCode || !formData.purchaseDate || !formData.claimType || !formData.issueDescription) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Direct on-submit validation: enforce that the warranty is registered and approved
+      const warranty = await lookupWarrantyBySerial(formData.warrantyNumber.trim());
+      if (!warranty) {
+        toast.error("Warranty check failed", {
+          description: "This warranty number is not registered. Please register first.",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (warranty.warranty_status !== "approved") {
+        toast.error("Warranty is not approved", {
+          description: `This warranty is currently '${warranty.warranty_status}'. Claims can only be filed for approved warranties.`,
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Convert attachments to base64
+      const base64Attachments = await Promise.all(
+        formData.attachments.map((file) => convertFileToBase64(file))
+      );
+
+      await createWarrantyClaim({
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        serial_number: formData.warrantyNumber.trim(),
+        product_model: formData.productCode,
+        purchase_date: formData.purchaseDate,
+        claim_type: formData.claimType,
+        issue_description: formData.issueDescription,
+        attachment_urls: base64Attachments,
+      });
+
+      toast.success("Warranty claim submitted successfully!", {
+        description: "Our support team will contact you within 24-48 hours.",
+      });
+
+      // Reset Form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        warrantyNumber: "",
+        productCode: "",
+        purchaseDate: "",
+        claimType: "",
+        issueDescription: "",
+        attachments: []
+      });
+      setIsWarrantyVerified(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit warranty claim. Please check details and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,20 +264,45 @@ export default function Claims() {
                     <label htmlFor="warrantyNumber" className="block text-sm font-semibold text-gray-700 mb-2">
                       <div className="flex items-center gap-2">
                         <Hash className="w-4 h-4" />
-                        Warranty Number *
+                        Warranty / Serial Number *
                       </div>
                     </label>
-                    <input
-                      type="text"
-                      id="warrantyNumber"
-                      required
-                      value={formData.warrantyNumber}
-                      onChange={(e) => setFormData({ ...formData, warrantyNumber: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="WC-XXXXX-XXXXX"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        id="warrantyNumber"
+                        required
+                        value={formData.warrantyNumber}
+                        onChange={(e) => {
+                          setFormData({ ...formData, warrantyNumber: e.target.value });
+                          setIsWarrantyVerified(false);
+                        }}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="e.g., P2G-LV-2026-001234"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleVerifyWarranty}
+                        disabled={isVerifying}
+                        className={`px-4 py-3 text-white font-medium ${
+                          isWarrantyVerified
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                      >
+                        {isVerifying ? (
+                          "Verifying..."
+                        ) : isWarrantyVerified ? (
+                          <span className="flex items-center gap-1">
+                            <ShieldCheck className="w-4 h-4" /> Verified
+                          </span>
+                        ) : (
+                          "Verify"
+                        )}
+                      </Button>
+                    </div>
                     <p className="text-sm text-gray-500 mt-2">
-                      Found on your warranty card
+                      Enter registered product serial number to verify active warranty.
                     </p>
                   </div>
 
@@ -283,8 +434,8 @@ export default function Claims() {
                     </ul>
                   </div>
                 </div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 py-6 text-lg">
-                  Submit Warranty Claim
+                <Button type="submit" disabled={isSubmitting} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 py-6 text-lg">
+                  {isSubmitting ? "Submitting Claim..." : "Submit Warranty Claim"}
                 </Button>
               </div>
             </form>

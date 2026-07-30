@@ -1,14 +1,25 @@
 import { Menu, Search, User, X } from "lucide-react";
 import { Button } from "./ui/button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import logo from "figma:asset/77747af3103ef2d86e83f2259cd8a89b07a206af.png";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export function Header() {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated } = useAuth();
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
@@ -78,24 +89,35 @@ export function Header() {
       {searchOpen && (
         <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center gap-4">
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search products, solutions, or support..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products, BESS, or support..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   autoFocus
                 />
               </div>
               <Button
+                type="submit"
+                variant="default"
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Search
+              </Button>
+              <Button
+                type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => setSearchOpen(false)}
               >
                 <X className="h-5 w-5" />
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       )}

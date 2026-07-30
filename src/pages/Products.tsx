@@ -1,19 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductFilters } from "../components/ProductFilters";
 import { ProductGrid } from "../components/ProductGrid";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { useSearchParams } from "react-router";
 
 export default function Products() {
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: "all",
     capacity: "all",
     sortBy: "featured",
+    search: search,
   });
 
-  const handleFilterChange = (newFilters: typeof filters) => {
-    setFilters(newFilters);
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      search: search,
+    }));
+  }, [search]);
+
+  const handleFilterChange = (newFilters: Omit<typeof filters, "search">) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+    }));
     // Auto-close filters on mobile after selection
     if (window.innerWidth < 1024) {
       setShowFilters(false);
