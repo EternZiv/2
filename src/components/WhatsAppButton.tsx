@@ -17,7 +17,7 @@ export function WhatsAppButton() {
     return () => clearTimeout(timer);
   }, []);
 
-  const phoneNumber = "923248263633"; // Dropped leading 0, added PK country code 92
+  const phoneNumber = "923042428157"; // Dropped leading 0, added PK country code 92
   const message = encodeURIComponent("Hi Power2Go, I'm visiting your website and would like to inquire about your clean energy/BESS systems.");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
