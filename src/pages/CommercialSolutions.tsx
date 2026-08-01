@@ -1,9 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ProductFilters } from "../components/ProductFilters";
-import { ProductCard } from "../components/ProductCard";
+import { ProductGrid } from "../components/ProductGrid";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { products } from "../data/products";
 
 export default function CommercialSolutions() {
   const [showFilters, setShowFilters] = useState(false);
@@ -21,31 +20,6 @@ export default function CommercialSolutions() {
       setShowFilters(false);
     }
   };
-
-  // Filter products to only commercial category
-  const filteredProducts = useMemo(() => {
-    let result = products.filter((p) => p.category === "commercial");
-
-    // Filter by capacity
-    if (filters.capacity !== "all") {
-      result = result.filter((p) => {
-        if (filters.capacity === "small") return p.capacity < 5;
-        if (filters.capacity === "medium")
-          return p.capacity >= 5 && p.capacity < 10;
-        if (filters.capacity === "large")
-          return p.capacity >= 10 && p.capacity <= 20;
-        if (filters.capacity === "xlarge") return p.capacity > 20;
-        return true;
-      });
-    }
-
-    // Sort products
-    if (filters.sortBy === "capacity") {
-      result.sort((a, b) => b.capacity - a.capacity);
-    }
-
-    return result;
-  }, [filters]);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -124,31 +98,7 @@ export default function CommercialSolutions() {
 
           {/* Products Grid */}
           <main className="flex-1">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-gray-600">
-                  Showing {filteredProducts.length}{" "}
-                  {filteredProducts.length === 1 ? "product" : "products"}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-16">
-                  <p className="text-gray-500 text-lg">
-                    No commercial products found matching your filters.
-                  </p>
-                  <p className="text-gray-400 mt-2">
-                    Try adjusting your filter criteria.
-                  </p>
-                </div>
-              )}
-            </div>
+            <ProductGrid filters={filters} />
           </main>
         </div>
       </div>

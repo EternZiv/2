@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router';
+import logo from 'figma:asset/5ce08c1df550714d0fc0aa9b66e97432a1986a84.png';
 import {
   LayoutDashboard,
   Package,
@@ -243,7 +244,10 @@ export default function AdminLayout() {
         }`}
       >
         <div className="flex h-16 items-center justify-between px-6">
-          <span className="text-xl font-bold tracking-tight">P2G Admin</span>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Power2Go" className="h-7 object-contain" />
+            <span className="text-base font-bold tracking-tight text-white/90">Admin</span>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="rounded-md p-1 text-gray-400 hover:text-white lg:hidden"

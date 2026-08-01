@@ -154,7 +154,6 @@ export default function ProductDetail() {
     : null;
 
   // Use variant data if available, otherwise use base product data
-  const displayData = currentVariant || product;
   const displayModel = currentVariant?.model || product.model;
   const displayPower = currentVariant?.power || product.power;
   const displayVoltage = currentVariant?.voltage || product.voltage;
@@ -607,7 +606,7 @@ export default function ProductDetail() {
                 </h3>
                 <Card className="overflow-hidden">
                   <div className="divide-y">
-                    {Object.entries(displaySpecifications).map(
+                    {Object.entries(displaySpecifications ?? {}).map(
                       ([key, value], idx) => (
                         <div
                           key={idx}
@@ -637,7 +636,7 @@ export default function ProductDetail() {
                     Key Features
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {displayKeyFeatures.map((feature, idx) => (
+                    {(displayKeyFeatures ?? []).map((feature, idx) => (
                       <Card key={idx} className="p-4">
                         <div className="flex items-start gap-3">
                           <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -653,7 +652,7 @@ export default function ProductDetail() {
                     Ideal Applications
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    {displayApplications.map((app, idx) => (
+                    {(displayApplications ?? []).map((app, idx) => (
                       <Card
                         key={idx}
                         className="p-4 text-center hover:shadow-lg transition"

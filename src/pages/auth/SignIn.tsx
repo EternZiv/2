@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
-import { Mail, Lock, Eye, EyeOff, LogIn, Zap } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
+import logo from "figma:asset/77747af3103ef2d86e83f2259cd8a89b07a206af.png";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -83,9 +84,9 @@ export default function SignIn() {
         {/* Logo and Header */}
         <div className="text-center mt-8">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Zap className="w-10 h-10 text-white" />
-            </div>
+            <Link to="/">
+              <img src={logo} alt="Power2Go Logo" className="h-14 object-contain" />
+            </Link>
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-2">
             Welcome Back

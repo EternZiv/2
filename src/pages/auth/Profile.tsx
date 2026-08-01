@@ -3,7 +3,7 @@ import { User, MapPin, Settings, Lock, Mail, Phone, Edit2, Save, X, LogOut, Plus
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../components/ui/dialog";
@@ -22,7 +22,7 @@ interface Address {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, profile, isAuthenticated, isLoading: authLoading, logout, fetchProfile } = useAuth();
+  const { user, profile, isLoading: authLoading, logout, fetchProfile } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

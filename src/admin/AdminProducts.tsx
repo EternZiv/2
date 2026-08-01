@@ -373,7 +373,6 @@ export default function AdminProducts() {
               <tbody className="divide-y divide-gray-100">
                 {/* Default Products */}
                 {products.map((product) => {
-                  const dbProduct = customProducts.find((p) => p.product_id === product.id);
                   return (
                     <tr key={`default-${product.id}`} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-6 py-4">

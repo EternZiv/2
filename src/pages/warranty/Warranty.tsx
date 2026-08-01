@@ -1,4 +1,4 @@
-import { Shield, CheckCircle, XCircle, FileText, Clock, AlertCircle, Phone, Mail } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Clock, AlertCircle, Phone, Mail } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Link } from "react-router";
 
@@ -323,7 +323,7 @@ export default function Warranty() {
               </Button>
             </Link>
             <Link to="/contact">
-              <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-6 text-lg">
+              <Button variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg">
                 Download Warranty Terms
               </Button>
             </Link>

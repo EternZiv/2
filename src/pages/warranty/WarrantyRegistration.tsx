@@ -2,7 +2,6 @@ import { ClipboardCheck, User, Mail, Phone, Hash, Calendar, MapPin, Package, Sea
 import { Button } from "../../components/ui/button";
 import { Link } from "react-router";
 import { useState } from "react";
-import type { WarrantyRegistration as WarrantyData } from "../../lib/types";
 import { toast } from "sonner";
 import { createWarrantyRegistration, lookupWarrantyBySerial } from "../../admin/adminApi";
 

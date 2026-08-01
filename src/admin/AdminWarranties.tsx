@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 import {
   fetchWarrantyClaims,
   updateWarrantyClaimStatus,
@@ -19,7 +18,6 @@ import {
   Clock,
   XCircle,
   Eye,
-  ChevronDown,
   FileText,
   Mail,
 } from "lucide-react";

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { Shield, User, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { toast } from "sonner";
 import { verifyAdminPassword, setAdminSession } from "./adminAuth";
+import logo from "figma:asset/77747af3103ef2d86e83f2259cd8a89b07a206af.png";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -35,8 +36,10 @@ export default function AdminLogin() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-blue-600" />
+            <div className="flex justify-center mb-6">
+              <Link to="/">
+                <img src={logo} alt="Power2Go Logo" className="h-14 object-contain" />
+              </Link>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
             <p className="text-gray-500 mt-1">Power2Go.Energy Management</p>

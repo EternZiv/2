@@ -3,7 +3,6 @@ import { fetchContactMessages, markMessageRead, deleteContactMessage } from "./a
 import type { ContactMessage } from "../lib/types";
 import { toast } from "sonner";
 import {
-  MessageSquare,
   Search,
   Trash2,
   Loader2,
@@ -72,11 +71,6 @@ export default function AdminMessages() {
     if (!msg.is_read) {
       markAsRead(msg.id);
     }
-  }
-
-  function copyEmail(email: string) {
-    navigator.clipboard.writeText(email);
-    toast.success("Email copied to clipboard");
   }
 
   function handleReplyViaEmail(msg: ContactMessage) {

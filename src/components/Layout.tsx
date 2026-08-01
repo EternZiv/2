@@ -3,6 +3,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Toaster } from "./ui/sonner";
 import { ScrollToTop } from "./ScrollToTop";
+import { WhatsAppButton } from "./WhatsAppButton";
 
 export default function Layout() {
   return (
@@ -13,6 +14,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <WhatsAppButton />
       <Toaster />
     </div>
   );
