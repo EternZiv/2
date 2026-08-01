@@ -33,7 +33,7 @@ export function Header() {
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8">
             <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Home
             </Link>
@@ -76,7 +76,7 @@ export function Header() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
@@ -126,7 +126,7 @@ export function Header() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[60] md:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -134,7 +134,7 @@ export function Header() {
       {/* Mobile Navigation Sidebar */}
       <div
         className={`
-          md:hidden fixed top-0 bottom-0 right-0 bg-white shadow-2xl transition-transform duration-300 ease-in-out w-full
+          lg:hidden fixed top-0 bottom-0 right-0 bg-white shadow-2xl transition-transform duration-300 ease-in-out w-full
           ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
         `}
         style={{ 

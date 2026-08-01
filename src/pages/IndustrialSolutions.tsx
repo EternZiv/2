@@ -56,18 +56,43 @@ export default function IndustrialSolutions() {
           />
         )}
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 relative">
           {/* Filters Sidebar */}
-          <div
-            className={`${
-              showFilters ? "block" : "hidden"
-            } lg:block lg:w-64 flex-shrink-0`}
+          <aside
+            className={`
+              lg:block lg:static lg:w-64 lg:flex-shrink-0 lg:z-auto
+              ${showFilters ? "block" : "hidden"}
+            `}
+            style={
+              showFilters
+                ? {
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    width: "320px",
+                    maxWidth: "85vw",
+                    backgroundColor: "white",
+                    zIndex: 101,
+                    overflowY: "auto",
+                  }
+                : undefined
+            }
           >
-            <ProductFilters
-              filters={filters}
-              setFilters={handleFilterChange}
-            />
-          </div>
+            {showFilters && (
+              <div className="lg:hidden flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
+                <h2 className="text-lg font-bold">Filters</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilters(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            )}
+            <ProductFilters filters={filters} setFilters={handleFilterChange} />
+          </aside>
 
           {/* Products Grid */}
           <div className="flex-1">
