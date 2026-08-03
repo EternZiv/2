@@ -110,13 +110,13 @@ Ensure you have the following installed on your machine:
    ```bash
    npm run dev
    ```
-   Open your browser at `http://localhost:5500` to view the application.
+   Open your browser at `http://localhost:3000` to view the application.
 
 ---
 
 ## 💻 Available Scripts
 
-- `npm run dev`: Starts the Vite development server on port 5500.
+- `npm run dev`: Starts the Vite development server on port 3000.
 - `npm run build`: Compiles TypeScript and builds production bundles into `dist/`.
 - `npm run preview`: Previews the production build locally.
 
@@ -189,4 +189,5 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 - Support: `info@power2go.energy` / `support@power2go.energy`
 - Head Office: 10 Ali Block, Garden Town, Lahore, Pakistan
 #   2  
+ #   3  
  
